@@ -35,7 +35,8 @@ public class HomePageModel implements HomePageContract.Model {
                  homePageRetrofitApi.getUser(number)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe( UserList-> listener.dataLoaded(UserList.getResults(),firstTime));
+                .subscribe( userList-> listener.dataLoaded(userList.getResults(),firstTime), error -> listener.failLoading(error));
+
     }
 
 

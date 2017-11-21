@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import timber.log.Timber;
+
 
 @ActivityScope
 public class HomePagePresenter implements HomePageContract.Presenter, GetNUsersListener {
@@ -40,5 +42,10 @@ public class HomePagePresenter implements HomePageContract.Presenter, GetNUsersL
         } else {
             view.showAnotherNUsers(results);
         }
+    }
+
+    @Override
+    public void failLoading(Throwable throwable) {
+        Timber.e(throwable);
     }
 }
