@@ -31,7 +31,6 @@ public class HomePageModel implements HomePageContract.Model {
     @Override
     public void getNUsers(int number,boolean firstTime,GetNUsersListener listener)
     {
-
                  homePageRetrofitApi.getUser(number)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())

@@ -46,6 +46,7 @@ public class HomePagePresenter implements HomePageContract.Presenter, GetNUsersL
 
     @Override
     public void failLoading(Throwable throwable) {
+        view.failLoading();
         Timber.e(throwable);
     }
 }

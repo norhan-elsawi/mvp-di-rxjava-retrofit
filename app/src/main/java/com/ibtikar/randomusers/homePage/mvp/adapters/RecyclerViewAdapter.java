@@ -1,7 +1,6 @@
 package com.ibtikar.randomusers.homePage.mvp.adapters;
 
 import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,43 +12,21 @@ import com.ibtikar.randomusers.homePage.mvp.adapters.viewHolders.RecyclerViewHol
 import com.ibtikar.randomusers.model.pojos.Result;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolders> {
     protected Context context;
-    private List<Result> itemList;
-    private int visibleThreshold = 5;
-    private int lastVisibleItem, totalItemCount;
-    private boolean loading;
-    private OnLoadMoreListener onLoadMoreListener;
-
     @Inject
     Picasso picasso;
 
-    public RecyclerViewAdapter(Context context, List<Result> itemList, RecyclerView recyclerView) {
+    private List<Result> itemList;
+
+    public RecyclerViewAdapter(Context context, List<Result> itemList) {
         this.itemList = itemList;
         this.context = context;
-        if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
-
-            final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-
-                    totalItemCount = linearLayoutManager.getItemCount();
-                    lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-                    if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                        if (onLoadMoreListener != null) {
-                            onLoadMoreListener.onLoadMore();
-                        }
-                        loading = true;
-                    }
-                }
-            });
-        }
     }
 
     @Override
@@ -86,15 +63,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
         return this.itemList.size();
     }
 
-    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
-        this.onLoadMoreListener = onLoadMoreListener;
+
+    public void showProgress() {
+        itemList.add(null);
+        notifyDataSetChanged();
     }
 
-    public void setLoaded() {
-        loading = false;
+    public void hideProgress() {
+        if (itemList.contains(null)) {
+            itemList.remove(null);
+            notifyDataSetChanged();
+        }
     }
 
-    public interface OnLoadMoreListener {
-        void onLoadMore();
+    public void addItems(ArrayList<Result> results) {
+        itemList.addAll(results);
+        notifyDataSetChanged();
     }
+
 }

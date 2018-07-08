@@ -12,15 +12,15 @@ import java.util.ArrayList;
 public interface HomePageContract {
 
     interface View extends BaseIView {
+        void failLoading();
 
         void showFirstNUsers(ArrayList<Result> results);
+
         void showAnotherNUsers(ArrayList<Result> results);
     }
 
     interface Model extends BaseIModel {
-
-        void getNUsers(int number,boolean firstTime,GetNUsersListener listener);
-
+        void getNUsers(int number, boolean firstTime, GetNUsersListener listener);
     }
 
     interface Presenter extends BaseIPresenter {

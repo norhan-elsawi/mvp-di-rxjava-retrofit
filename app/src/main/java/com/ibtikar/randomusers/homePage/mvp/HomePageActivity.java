@@ -13,6 +13,7 @@ import com.ibtikar.randomusers.homePage.di.DaggerHomePageComponent;
 import com.ibtikar.randomusers.homePage.di.HomePageModule;
 import com.ibtikar.randomusers.homePage.mvp.adapters.RecyclerViewAdapter;
 import com.ibtikar.randomusers.model.pojos.Result;
+import com.ibtikar.randomusers.model.utils.EndlessRecyclerViewScrollListener;
 
 import java.util.ArrayList;
 
@@ -30,8 +31,8 @@ public class HomePageActivity extends AppCompatActivity implements HomePageContr
 
     RecyclerViewAdapter recyclerViewAdapter;
 
-    ArrayList<Result> myResults;
-    Handler handler;
+
+    boolean flagLoading = false;
 
 
     @Override
@@ -40,9 +41,10 @@ public class HomePageActivity extends AppCompatActivity implements HomePageContr
         setContentView(R.layout.activity_home_page);
         resolveDaggerDependency(Injector.INSTANCE.getAppComponent());
         initRecyclerView();
-        handler = new Handler();
         presenter.showFirstNUsers();
+
     }
+
 
     private void initRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view);
@@ -59,28 +61,36 @@ public class HomePageActivity extends AppCompatActivity implements HomePageContr
                 .inject(this);
     }
 
+    @Override
+    public void failLoading() {
+        if (recyclerViewAdapter != null)
+            recyclerViewAdapter.hideProgress();
+    }
+
     public void showFirstNUsers(ArrayList<Result> results) {
-        myResults = results;
-        recyclerViewAdapter = new RecyclerViewAdapter(HomePageActivity.this, myResults, recyclerView);
+        recyclerViewAdapter = new RecyclerViewAdapter(HomePageActivity.this, results);
         recyclerView.setAdapter(recyclerViewAdapter);
-
-        recyclerViewAdapter.setOnLoadMoreListener(() -> {
-            presenter.loadMore();
-            myResults.add(null);
-            recyclerViewAdapter.notifyItemInserted(myResults.size() - 1);
-
+        recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                getNUsers();
+            }
         });
+    }
+
+    private void getNUsers() {
+        if (!flagLoading) {
+            flagLoading = true;
+            recyclerViewAdapter.showProgress();
+            presenter.loadMore();
+        }
     }
 
     @Override
     public void showAnotherNUsers(ArrayList<Result> results) {
-        handler.postDelayed(() -> {
-            myResults.remove(myResults.size() - 1);
-            recyclerViewAdapter.notifyItemRemoved(myResults.size() - 1);
-            myResults.addAll(results);
-            recyclerViewAdapter.notifyItemInserted(myResults.size());
-            recyclerViewAdapter.setLoaded();
-        }, 2000);
+        flagLoading = false;
+        recyclerViewAdapter.hideProgress();
+        recyclerViewAdapter.addItems(results);
     }
 
 }
